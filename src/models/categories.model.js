@@ -4,7 +4,8 @@ const db = require('../utils/database');
 const Categories = db.define('categories',{
     title : {
         type: DataTypes.STRING(30),
-        allowNull:false
+        allowNull:false,
+        unique: true
     },
     description : {
         type:DataTypes.STRING(100),

@@ -1,3 +1,4 @@
+const Categories = require('../models/categories.model');
 const Tasks = require('../models/tasks.model')
 
 
@@ -6,13 +7,13 @@ const getAllTasks = async (req, res) => {
         // TODO mandar a buscar a todos las tareas
         const tasks = await Tasks.findAll();
         //TODO responder al cliente
-        res.json(tasks)
+        res.status(200).json(tasks)
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const getTasksById = async (req, res) => {
+const getTaskById = async (req, res) => {
 
     try {
         //TODO obtener el id de la ruta
@@ -23,14 +24,20 @@ const getTasksById = async (req, res) => {
        //TODO responde el cliente
        const tasks = await Tasks.findOne({
         where: {id},
+        include: {
+            model: Categories,
+            attributes: {
+                exclude: ['id']
+            }
+        }
        })
-       res.json(tasks)
+       res.status(200).json(tasks)
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const getTasksPut = async (req, res) => {
+const updateTask = async (req, res) => {
     try {
         //TODO obtener el id del usuario
         //TODO obtener el body con la informacion
@@ -39,30 +46,35 @@ const getTasksPut = async (req, res) => {
 
         //todo realizar la consulta para actulizar
         //responde a un numero (la cantidad de filas  afectadas )
-        await Tasks.update(data,{
+        const result = await Tasks.update(data,{
             where :{ id } // => sherthan {id : id}
         })
-        res.status(201).json({"status": "update correct!"});
+        result[0] === "0" || result[0] === 0  ? res.status(200).json(message("Task no exist, verified id!")) : 
+        res.status(200).json(message("Update correct!"))
+
+        //res.status(201).json({"status": "update correct!"});
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const deleteTasks = async (req, res) => {
+const deleteTask = async (req, res) => {
     try {
         // TODO obtener el id de la ruta
         const { id } = req.params;
         //todo eliminar en la base de datos
-        await Tasks.destroy({
+        const result = await Tasks.destroy({
             where : { id }
         })
-        res.status(200).json({"status": "deleted!"})
+        result === "0" || result === 0  ? res.status(200).json(message("Task no exist, verified id!")) : 
+        res.status(200).json(message("Delete correct!"))
+        //res.status(200).json(result)
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const postTasks = async (req, res) => {
+const createTask = async (req, res) => {
     //TODO manejo de de excepciones
   
     try {
@@ -70,20 +82,23 @@ const postTasks = async (req, res) => {
       const newTask = req.body; // * {email , password}
   
       //TODO mandar a crear con la informacion obtenida
-      await Tasks.create(newTask); //* {email : 'dxdxd', :password : 'ds'}
-  
+      const result = await Tasks.create(newTask); //* {email : 'dxdxd', :password : 'ds'}
+      result.id ? res.status(201).json(message("Task created!")) : 
+      res.status(200).json(message("Task no created!"))
       //TODO responder que se ha realizado la accion
-      res.status(201).json({"status": "created!"});
+      //res.status(201).json({"status": "created!"});
     } catch (error) {
       //TODO atrapar el error
       res.status(400).json(error);
     }
   };
-
+  const message = (msg) => {
+    return { "msg" : `${msg}`}
+  }
 module.exports = {
     getAllTasks,
-    getTasksById,
-    getTasksPut,
-    deleteTasks,
-    postTasks
+    getTaskById,
+    updateTask,
+    deleteTask,
+    createTask
 }

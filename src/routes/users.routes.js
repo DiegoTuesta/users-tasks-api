@@ -1,10 +1,10 @@
 const { Router } = require('express');
 
-const {  getAllUsers, getUserById, getUSerPut, deleteUser, postUser } = require('../controllers/users.controllers');
+const {  getAllUsers, getUserById, updateUser, deleteUser, createUser } = require('../controllers/users.controllers');
 
 const router = Router();
 
-router.post('/users',postUser );
+router.post('/users',createUser );
 
 router.get('/users',getAllUsers );
 
@@ -12,7 +12,7 @@ router.get('/users',getAllUsers );
 router.get('/users/:id',getUserById );
 
 
-router.put('/users/:id',getUSerPut );
+router.put('/users/:id',updateUser );
 
 router.delete('/users/:id',deleteUser );
 

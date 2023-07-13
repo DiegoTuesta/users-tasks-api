@@ -1,17 +1,17 @@
 const { Router } = require('express');
 
-const {  getAllCategory, getCategoryById, getCategoryPut, deleteCategory, postCategory } = require('../controllers/categories.controllers');
+const {  getAllCategories, getCategoryById, updateCategory, deleteCategory, createCategory } = require('../controllers/categories.controllers');
 
 const router = Router();
 
-router.post('/categories',postCategory );
+router.post('/categories',createCategory );
 
-router.get('/categories',getAllCategory );
+router.get('/categories', getAllCategories );
 
 router.get('/categories/:id',getCategoryById );
 
 
-router.put('/categories/:id',getCategoryPut );
+router.put('/categories/:id',updateCategory );
 
 router.delete('/categories/:id',deleteCategory );
 

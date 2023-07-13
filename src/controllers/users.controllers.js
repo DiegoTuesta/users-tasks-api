@@ -5,9 +5,13 @@ const Tasks = require("../models/tasks.model")
 const getAllUsers = async (req, res) => {
     try {
         // TODO mandar a buscar a todos los usuarios
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes: {
+                exclude: ["password"]
+            },
+        });
         //TODO responder al cliente
-        res.json(users)
+        res.status(200).json(users)
     } catch (error) {
         res.status(400).json(error)
     }
@@ -22,6 +26,9 @@ const getUserById = async (req, res) => {
        //TODO realizar la consulta a la base de datos
        const user = await User.findOne({
         where: {id},
+        attributes: {
+            exclude: ["password"]
+        },
         include: [
             {
             model: Tasks,
@@ -34,45 +41,53 @@ const getUserById = async (req, res) => {
         }]
        })
        //TODO responde el cliente
-       res.json(user)
+       res.status(200).json(user)
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const getUSerPut = async (req, res) => {
+const updateUser = async (req, res) => {
     try {
         //TODO obtener el id del usuario
         //TODO obtener el body con la informacion
+
         const { id } = req.params;
         const data = req.body;
 
         //todo realizar la consulta para actulizar
         //responde a un numero (la cantidad de filas  afectadas )
-        await User.update(data,{
+        const result = await User.update(data,{
             where :{ id } // => sherthan {id : id}
-        })
-        res.status(201).json({"status": "update correct!"});
+        });
+
+        // res.status(200).json( typeof result[0] )
+        result[0] === "0" || result[0] === 0  ? res.status(200).json(message("User no exist, verified id!")) : 
+        res.status(200).json(message("Update correct!"))
+        //res.status(201).json({"status": "update correct!"});
     } catch (error) {
         res.status(400).json(error)
     }
 };
+
 
 const deleteUser = async (req, res) => {
     try {
         // TODO obtener el id de la ruta
         const { id } = req.params;
         //todo eliminar en la base de datos
-        await User.destroy({
+        const result = await User.destroy({
             where : { id }
         })
-        res.status(200).json({"status": "deleted!"})
+        result === "0" || result === 0  ? res.status(200).json(message("User no exist, verified id!")) : 
+        res.status(200).json(message("Delete correct!"))
+        //res.status(200).json({"status": "deleted!"})
     } catch (error) {
         res.status(400).json(error)
     }
 };
 
-const postUser = async (req, res) => {
+const createUser = async (req, res) => {
     //TODO manejo de de excepciones
   
     try {
@@ -80,20 +95,24 @@ const postUser = async (req, res) => {
       const newUser = req.body; // * {email , password}
   
       //TODO mandar a crear con la informacion obtenida
-        await User.create(newUser); //* {email : 'dxdxd', :password : 'ds'}
-  
+       const result =  await User.create(newUser); //* {email : 'dxdxd', :password : 'ds'}
+       result.id ? res.status(201).json(message("User created!")) : 
+       res.status(200).json(message("User no created!"))
       //TODO responder que se ha realizado la accion
-      res.status(201).json({"status": "user created!"});
+      //res.status(201).json(message("User created!"));
     } catch (error) {
       //TODO atrapar el error
       res.status(400).json(error);
     }
   };
 
+  const message = (msg) => {
+    return { "msg" : `${msg}`}
+  }
 module.exports = {
     getAllUsers,
     getUserById,
-    getUSerPut,
+    updateUser,
     deleteUser,
-    postUser
+    createUser
 }
